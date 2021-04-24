@@ -1,9 +1,11 @@
 import { format, parseISO } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import { GetStaticPaths, GetStaticProps } from 'next';
+import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
-import {useRouter} from 'next/router';
+import React from 'react';
+import { usePlayer } from '../../contexts/PlayerContext';
 import { api } from '../../services/api';
 import { convertDurationToString } from '../../utils/convertDurationToString';
 
@@ -26,10 +28,15 @@ type EpisodeProps = {
 }
 
 export default function Episodes({episode}: EpisodeProps) {
-  const router = useRouter();
+  const {play} = usePlayer();
 
   return (
     <div className={styles.episode}>
+
+      <Head>
+        <title>{episode.title}</title>
+      </Head>
+
       <div className={styles.thumbnailContainer}>
         <Link href={'/'}>
         <button type="button">
@@ -43,7 +50,7 @@ export default function Episodes({episode}: EpisodeProps) {
           src={episode.thumbnail}
           objectFit="cover"
         />
-        <button type="button">
+        <button type="button" onClick={() => play(episode)}>
           <img src="/play.svg" alt="Tocar episódio"/>
         </button>
       </div>
@@ -60,6 +67,9 @@ export default function Episodes({episode}: EpisodeProps) {
   )
 }
 
+//O episódio é dinâmico, pois existem vários, por isso é necessário o staticPaths
+//Página estática com parâmetros 
+//pode colocar páginas no paths para serem criadas de forma estática na build, fallback blocking faz com que as outras sejam criadas só quando acessadas
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [],
